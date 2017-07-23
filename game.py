@@ -41,88 +41,131 @@ class Card (object):
         return self.__str__()
 
 class Game (object):
-    def __init__(self, file):
-        self.cols = [[] for i in range(nCols)]
-        self.freeCols = [False]*nCols
-        self.cells = [None]*nCells
-        self.foundations = [0]*nFoundations
-        for i in range(nInitRows):
-            line = gameFile.readline().split()
-            for j in range(len(line)):
-                self.cols[j].append(Card(line[j]))
-                
-    def __str__(self):
-        out = '\n'
-        maxD = self.maxDepth()
-        out += (' '.join((str(i) if i else 'x '\
-                for i in self.cells)) + '|')
-        out += ' '.join((suitSDict[i] + valueSDict[self.foundations[i]] \
-                for i in range(nFoundations)))
-        out += '\n\n'
-        out += ''.join(' '.join((str(self.cols[j][i]) \
-                if i < len((self.cols[j])) else '  '\
-                for j in range(nCols))) + '\n' for i in range(maxD))
-        return out
-        
-    def colToCell(self, col):
+    def __init__(self, file = None, copy = None):
+        if file:
+            self.cols = [[] for i in range(nCols)]
+            self.freeCols = [False]*nCols
+            self.cells = [None]*nCells
+            self.foundations = [0]*nFoundations
+            for i in range(nInitRows):
+                line = file.readline().split()
+                for j in range(len(line)):
+                    self.cols[j].append(Card(line[j]))
+        elif copy:
+            self.cols = [list(i) for i in copy.cols]
+            self.freeCols = list(copy.freeCols)
+            self.cells = list(copy.cells)
+            self.foundations = list(copy.foundations)
+    
+    def command (self, sCommand):
+        if len(sCommand) < 7 and len(sCommand) > 0:
+            if sCommand != 'exit':
+                fro = sCommand[0:2]
+                to = sCommand[2:4]
+                if fro[0] == 'c':
+                    if to[0] == 'c':
+                        if fro[1].isdigit() and to[1].isdigit():
+                            return self.colToCol(int(fro[1]), int(to[1]))
+                        else:
+                            return False
+                    elif to[0] == 'a':
+                        if fro[1].isdigit():
+                            return self.colToCell(int(fro[1]))
+                        else:
+                            return False
+                    elif to[0] == 'f':
+                        if fro[1].isdigit():
+                            return self.colToFoundation(int(fro[1]))
+                        else:
+                            return False
+                    else:
+                        return False
+                elif fro[0] == 'a':
+                    if to[0] == 'c':
+                        if fro[1].isdigit() and to[1].isdigit():
+                            return self.cellToCol(int(fro[1]), int(to[1]))
+                        else:
+                            return False
+                    elif to[0] == 'f':
+                        if fro[1].isdigit():
+                            return self.cellToFoundation(int(fro[1]))
+                        else:
+                            return False
+                    else:
+                        return False
+                else:
+                    return False
+            else:
+                return True
+        else:
+            return False
+    
+    def colToCell(self, col, goAhead = True):
         try:
             i = self.cells.index(None)
-            self.cells[i] = self.cols[col].pop()
+            if goAhead:
+                self.cells[i] = self.cols[col].pop()
             return True
         except ValueError:
             return False
         
-    def colToFoundation(self, col):
+    def colToFoundation(self, col, goAhead = True):
         try:
             tempCard = self.cols[col][-1]
             if self.foundations[tempCard.suit] == tempCard.value - 1:
-                self.foundations[tempCard.suit] = self.cols[col].pop().value
+                if goAhead:
+                    self.foundations[tempCard.suit] = self.cols[col].pop().value
                 return True
             else:
                 return False
         except IndexError:
             return False
             
-    def colToCol(self, col, colBase):
+    def colToCol(self, col, colBase, goAhead = True):
         try:
             tempCard = self.cols[col][-1]
             if len(self.cols[colBase]):
                 baseCard = self.cols[colBase][-1]
                 if Game.cardCompatibility(tempCard, baseCard):
-                    self.cols[colBase].append(self.cols[col].pop())
+                    if goAhead:
+                        self.cols[colBase].append(self.cols[col].pop())
                     return True
                 else:
                     return False
-            else:   
-                self.cols[colBase].append(self.cols[col].pop())
+            else: 
+                if goAhead:
+                    self.cols[colBase].append(self.cols[col].pop())
                 return True
         except IndexError:
             return False
 
-    def cellToCol(self, cell, col):
+    def cellToCol(self, cell, col, goAhead = True):
         cellCard = self.cells[cell]
         if cellCard:
             if len(self.cols[col]):
                 baseCard = self.cols[col][-1]
                 if Game.cardCompatibility(cellCard, baseCard):
-                    self.cols[col].append(cellCard)
-                    self.cells[cell] = None
+                    if goAhead:
+                        self.cols[col].append(cellCard)
+                        self.cells[cell] = None
                     return True
                 else:
                     return False
-            else:   
-                self.cols[col].append(cellCard)
-                self.cells[cell] = None
+            else:  
+                if goAhead:
+                    self.cols[col].append(cellCard)
+                    self.cells[cell] = None
                 return True
         else:
             return False
             
-    def cellToFoundation(self, cell):
+    def cellToFoundation(self, cell, goAhead = True):
         cellCard = self.cells[cell]
         if cellCard:
             if self.foundations[cellCard.suit] == cellCard.value - 1:
-                self.foundations[cellCard.suit] = cellCard.value
-                self.cells[cell] = None
+                if goAhead:
+                    self.foundations[cellCard.suit] = cellCard.value
+                    self.cells[cell] = None
                 return True
             else:
                 return False
@@ -144,8 +187,28 @@ class Game (object):
     def isSolved(self):
         return all((len(i) == 0 for i in self.cols))
 
-gameFile = open('game.txt')
-newGame = Game(gameFile)
-gameFile.close()
-
-print(newGame, end = '')
+    def __str__(self):
+        out = '\n'
+        maxD = self.maxDepth()
+        out += (' '.join((str(i) if i else 'x '\
+                for i in self.cells)) + '|')
+        out += ' '.join((suitSDict[i] + valueSDict[self.foundations[i]] \
+                for i in range(nFoundations)))
+        out += '\n\n'
+        out += ''.join(' '.join((str(self.cols[j][i]) \
+                if i < len((self.cols[j])) else '  '\
+                for j in range(nCols))) + '\n' for i in range(maxD))
+        return out
+    
+if __name__ == "__main__":
+    gameFile = open('game.txt')
+    newGame = Game(file = gameFile)
+    cmd = ''
+    while not newGame.isSolved() and cmd != 'exit':
+        print(newGame, end = '')
+        print ('>>', end = '')
+        cmd = input()
+        if not newGame.command(cmd):
+            print('\nInvalid Input')
+    if cmd != 'exit':
+        print('You Win')
