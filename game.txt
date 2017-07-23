@@ -1,7 +1,7 @@
-ca s4 ck s8 s7 h9 c5 h3
-c4 c2 hq sq st c7 d3 d4
-h6 sk h8 d2 c9 da c8 h5
-s9 ht d7 h4 ha h7 sj dq
-cj dk s3 d6 c6 s5 hk h2
-sa d9 s2 d5 dj cq s6 c3
-dt hj ct d8
+d5 sa s3 d4 c2 cq d9 hq
+dk s8 st h4 h2 h8 sq h7
+s2 s7 d6 hj h5 cj s6 d2
+dj ct s4 s5 c9 c5 hk c7
+s9 ht dt da sk d8 c8 ck
+d3 c4 ha sj h6 ca h3 h9
+c3 c6 d7 dq
