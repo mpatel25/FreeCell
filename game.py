@@ -59,54 +59,54 @@ class Game (object):
     
     def command (self, sCommand):
         if len(sCommand) < 7 and len(sCommand) > 0:
-            if sCommand != 'exit':
-                fro = sCommand[0:2]
-                to = sCommand[2:4]
-                if fro[0] == 'c':
-                    if to[0] == 'c':
-                        if fro[1].isdigit() and to[1].isdigit():
-                            return self.colToCol(int(fro[1]), int(to[1]))
-                        else:
-                            return False
-                    elif to[0] == 'a':
-                        if fro[1].isdigit():
-                            return self.colToCell(int(fro[1]))
-                        else:
-                            return False
-                    elif to[0] == 'f':
-                        if fro[1].isdigit():
-                            return self.colToFoundation(int(fro[1]))
-                        else:
-                            return False
+            fro = sCommand[0:2]
+            to = sCommand[2:4]
+            if fro[0] == 'c':
+                if to[0] == 'c':
+                    if fro[1].isdigit() and to[1].isdigit():
+                        return self.colToCol(int(fro[1]), int(to[1]))
                     else:
                         return False
-                elif fro[0] == 'a':
-                    if to[0] == 'c':
-                        if fro[1].isdigit() and to[1].isdigit():
-                            return self.cellToCol(int(fro[1]), int(to[1]))
-                        else:
-                            return False
-                    elif to[0] == 'f':
-                        if fro[1].isdigit():
-                            return self.cellToFoundation(int(fro[1]))
-                        else:
-                            return False
+                elif to[0] == 'a':
+                    if fro[1].isdigit() and to[1].isdigit():
+                        return self.colToCell(int(fro[1]), int(to[1]))
+                    else:
+                        return False
+                elif to[0] == 'f':
+                    if fro[1].isdigit():
+                        return self.colToFoundation(int(fro[1]))
+                    else:
+                        return False
+                else:
+                    return False
+            elif fro[0] == 'a':
+                if to[0] == 'c':
+                    if fro[1].isdigit() and to[1].isdigit():
+                        return self.cellToCol(int(fro[1]), int(to[1]))
+                    else:
+                        return False
+                elif to[0] == 'f':
+                    if fro[1].isdigit():
+                        return self.cellToFoundation(int(fro[1]))
                     else:
                         return False
                 else:
                     return False
             else:
-                return True
+                return False
         else:
             return False
     
-    def colToCell(self, col, goAhead = True):
+    def colToCell(self, col, cell, goAhead = True):
         try:
-            i = self.cells.index(None)
-            if goAhead:
-                self.cells[i] = self.cols[col].pop()
-            return True
-        except ValueError:
+            tempCard = self.cols[col][-1]
+            if self.cells[cell]:
+                return False
+            else:
+                if goAhead:
+                    self.cells[cell] = self.cols[col].pop()
+                return True
+        except IndexError:
             return False
         
     def colToFoundation(self, col, goAhead = True):
@@ -200,6 +200,13 @@ class Game (object):
                 for j in range(nCols))) + '\n' for i in range(maxD))
         return out
     
+def allPossibleMoves(game):
+    pass
+    
+def ai(game):
+    gameStack = [Game(copy = game)]
+    
+    
 if __name__ == "__main__":
     gameFile = open('game.txt')
     newGame = Game(file = gameFile)
@@ -208,7 +215,10 @@ if __name__ == "__main__":
         print(newGame, end = '')
         print ('>>', end = '')
         cmd = input()
-        if not newGame.command(cmd):
-            print('\nInvalid Input')
+        if cmd != 'exit' and cmd != 'ai':
+            if not newGame.command(cmd):
+                print('\nInvalid Input')
+        elif cmd == 'ai':
+            ai(newGame)
     if cmd != 'exit':
         print('You Win')
