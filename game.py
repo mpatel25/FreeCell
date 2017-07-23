@@ -180,6 +180,12 @@ class Game (object):
                 return False
         else:
             return False
+            
+    def emptyCell(self):
+        try:
+            return self.cells.index(None)
+        except ValueError:
+            return None
     
     def maxDepth(self):
         return max((len(i) for i in self.cols))
@@ -201,10 +207,28 @@ class Game (object):
         return out
     
 def allPossibleMoves(game):
-    pass
+    ret = []
+    ret += ['c' + str(i) + 'f' \
+        for i in range(nCols) if game.colToFoundation(i, False)]
+    ret += ['a' + str(i) + 'f' \
+        for i in range(nCells) if game.cellToFoundation(i, False)]
+    nextEmptyCell = game.emptyCell()
+    ret += ['c' + str(i) + 'c' + str(j)\
+        for i in range(nCols) for j in range(nCols)\
+        if i != j if game.colToCol(i, j, False)]
+    ret += ['a' + str(i) + 'c' + str(j)\
+        for i in range(nCells) for j in range(nCols)\
+        if game.cellToCol(i, j, False)]
+    if nextEmptyCell != None:
+        ret += ['c' + str(i) + 'a' + str(nextEmptyCell)
+            for i in range(nCols) if game.colToCell(i, nextEmptyCell, False)]
+    return ret
     
 def ai(game):
     gameStack = [Game(copy = game)]
+    commandStack = [allPossibleMoves(game)]
+    moveStack = [commandStack[0][0]]
+    repStack = []
     
     
 if __name__ == "__main__":
@@ -219,6 +243,6 @@ if __name__ == "__main__":
             if not newGame.command(cmd):
                 print('\nInvalid Input')
         elif cmd == 'ai':
-            ai(newGame)
+            print(ai(newGame))
     if cmd != 'exit':
         print('You Win')
