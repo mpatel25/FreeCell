@@ -57,46 +57,6 @@ class Game (object):
             self.cells = list(copy.cells)
             self.foundations = list(copy.foundations)
     
-    def command (self, sCommand):
-        if len(sCommand) < 7 and len(sCommand) > 0:
-            fro = sCommand[0:2]
-            to = sCommand[2:4]
-            if fro[0] == 'c':
-                if to[0] == 'c':
-                    if fro[1].isdigit() and to[1].isdigit():
-                        return self.colToCol(int(fro[1]), int(to[1]))
-                    else:
-                        return False
-                elif to[0] == 'a':
-                    if fro[1].isdigit() and to[1].isdigit():
-                        return self.colToCell(int(fro[1]), int(to[1]))
-                    else:
-                        return False
-                elif to[0] == 'f':
-                    if fro[1].isdigit():
-                        return self.colToFoundation(int(fro[1]))
-                    else:
-                        return False
-                else:
-                    return False
-            elif fro[0] == 'a':
-                if to[0] == 'c':
-                    if fro[1].isdigit() and to[1].isdigit():
-                        return self.cellToCol(int(fro[1]), int(to[1]))
-                    else:
-                        return False
-                elif to[0] == 'f':
-                    if fro[1].isdigit():
-                        return self.cellToFoundation(int(fro[1]))
-                    else:
-                        return False
-                else:
-                    return False
-            else:
-                return False
-        else:
-            return False
-    
     def colToCell(self, col, cell, goAhead = True):
         try:
             tempCard = self.cols[col][-1]
@@ -181,6 +141,28 @@ class Game (object):
         else:
             return False
             
+    commands = {'cc':[1,colToCol],\
+                'ca':[1,colToCell],\
+                'cf':[0,colToFoundation],\
+                'ac':[1,cellToCol],\
+                'af':[0,cellToFoundation]}
+    
+    def command (self, sCommand):
+        print(len(sCommand))
+        if len(sCommand) > 4:
+            return False
+        cmd = sCommand[0] + sCommand[2]
+        if cmd not in self.commands:
+            return False
+        if self.commands[cmd][0]:
+            l1 = sCommand[1]
+            l2 = sCommand[3]
+            self.commands[cmd][1](self, int(l1), int(l2), True)
+        else:
+            l1 = sCommand[1]
+            self.commands[cmd][1](self, int(l1), True)
+        return True
+            
     def emptyCell(self):
         try:
             return self.cells.index(None)
@@ -230,7 +212,6 @@ def ai(game):
     moveStack = [commandStack[0][0]]
     repStack = []
     
-    
 if __name__ == "__main__":
     gameFile = open('game.txt')
     newGame = Game(file = gameFile)
@@ -239,7 +220,7 @@ if __name__ == "__main__":
         print(newGame, end = '')
         print ('>>', end = '')
         cmd = input()
-        if cmd != 'exit' and cmd != 'ai':
+        if cmd not in ['exit', 'ai']:
             if not newGame.command(cmd):
                 print('\nInvalid Input')
         elif cmd == 'ai':
