@@ -150,10 +150,12 @@ class Game (object):
                 'af':[0,cellToFoundation]}
     
     def command (self, sCommand):
-        if len(sCommand) > 4:
+        if len(sCommand) > 4 or len(sCommand) < 3:
+            print('Invalid Input')
             return False
         cmd = sCommand[0] + sCommand[2]
         if cmd not in self.commands:
+            print('Invalid Input')
             return False
         if self.commands[cmd][0]:
             l1 = sCommand[1]
@@ -209,6 +211,14 @@ def allPossibleMoves(game):
     ret += ['c' + str(i) + 'f' \
         for i in range(nCols) if game.colToFoundation(i, False)]
     return ret
+'''
+def allPossibleMoves2(game):
+    ret = []
+    ret += ['a' + str(i) + 'f' \
+        for i in range(nCells) if game.cellToFoundation(i, False)]
+    ret += ['c' + str(i) + 'f' \
+        for i in range(nCols) if game.colToFoundation(i, False
+    game.'''
 
 def repCheck(stack):
     if not stack:
@@ -223,40 +233,33 @@ def repCheck(stack):
 def ai(game):
     gameStack = [Game(copy = game)]
     commandStack = [allPossibleMoves(game)]
-    moveStack = [commandStack[0].pop()]
-    repStack = list(gameStack)
+    moveStack = []
     
     def clean():
-        while not len(commandStack[-1]):
+        while not len(commandStack[-1]) and not gameStack[-1].isSolved():
             gameStack.pop()
             commandStack.pop()
             moveStack.pop()
-            if len(repStack):
-                repStack.pop()
-        
-    
+                
     while not gameStack[-1].isSolved():
         moveStack.append(commandStack[-1].pop())
-        #print(moveStack[-1])
         nextStep = Game(copy = gameStack[-1])
+        #print (moveStack[-1])
+        #print(gameStack[-1])
+        #input()
         nextStep.command(moveStack[-1])
         gameStack.append(nextStep)
-        repStack.append(nextStep)
         commandStack.append(allPossibleMoves(gameStack[-1]))
-        if moveStack[-1][2] == 'f':
-            repStack = []
-        repLevel = repCheck(repStack)
-        for i in range(repLevel):
-            #print(len(repStack), repLevel)
+        repLevel = repCheck(gameStack)
+        #for i in range(repLevel):
+        if repLevel:
             gameStack.pop()
             commandStack.pop()
             moveStack.pop()
-            repStack.pop()
         clean()
-        #print (len(gameStack), len(commandStack), len(moveStack))
-        #print(gameStack[-1])
-        sleep(0.1)
-    return commandStack
+        
+        #sleep(0.1)
+    return moveStack
     
 if __name__ == "__main__":
     gameFile = open('game.txt')
@@ -266,10 +269,15 @@ if __name__ == "__main__":
         print(newGame, end = '')
         print ('>>', end = '')
         cmd = input()
-        if cmd not in ['exit', 'ai']:
-            if not newGame.command(cmd):
-                print('\nInvalid Input')
+        if cmd not in ['exit', 'ai', 'fin']:
+            newGame.command(cmd)
         elif cmd == 'ai':
             print(ai(newGame))
+        elif cmd == 'fin':
+            with open('fin.txt') as f:
+                for i in f:
+                    newGame.command(i)
+                    print(newGame)
     if cmd != 'exit':
         print('You Win')
+        print(newGame)
