@@ -1,23 +1,23 @@
-from time import sleep
+import sys
 
-suitIDict = {'s':0,\
-            'd':1,\
-            'c':2,\
+suitIDict = {'s':0,
+            'd':1,
+            'c':2,
             'h':3}
 
-valueIDict = {'k':13,\
-            'q':12,\
-            'j':11,\
-            't':10,\
-            '9':9,\
-            '8':8,\
-            '7':7,\
-            '6':6,\
-            '5':5,\
-            '4':4,\
-            '3':3,\
-            '2':2,\
-            'a':1,\
+valueIDict = {'k':13,
+            'q':12,
+            'j':11,
+            't':10,
+            '9':9,
+            '8':8,
+            '7':7,
+            '6':6,
+            '5':5,
+            '4':4,
+            '3':3,
+            '2':2,
+            'a':1,
             '0':0}
             
 suitSDict = {suitIDict[i]:i for i in suitIDict}
@@ -143,10 +143,10 @@ class Game (object):
         else:
             return False
             
-    commands = {'cc':[1,colToCol],\
-                'ca':[1,colToCell],\
-                'cf':[0,colToFoundation],\
-                'ac':[1,cellToCol],\
+    commands = {'cc':[1,colToCol],
+                'ca':[1,colToCell],
+                'cf':[0,colToFoundation],
+                'ac':[1,cellToCol],
                 'af':[0,cellToFoundation]}
     
     def command (self, sCommand):
@@ -211,73 +211,25 @@ def allPossibleMoves(game):
     ret += ['c' + str(i) + 'f' \
         for i in range(nCols) if game.colToFoundation(i, False)]
     return ret
-'''
-def allPossibleMoves2(game):
-    ret = []
-    ret += ['a' + str(i) + 'f' \
-        for i in range(nCells) if game.cellToFoundation(i, False)]
-    ret += ['c' + str(i) + 'f' \
-        for i in range(nCols) if game.colToFoundation(i, False
-    game.'''
-
-def repCheck(stack):
-    if not stack:
-        return 0
-    latest = stack[-1]
-    startlocation = len(stack)-2
-    for i in range(startlocation+1):
-        if stack[startlocation-i] == latest:
-            return i+1
-    return 0
-        
-def ai(game):
-    gameStack = [Game(copy = game)]
-    commandStack = [allPossibleMoves(game)]
-    moveStack = []
-    
-    def clean():
-        while not len(commandStack[-1]) and not gameStack[-1].isSolved():
-            gameStack.pop()
-            commandStack.pop()
-            moveStack.pop()
-                
-    while not gameStack[-1].isSolved():
-        moveStack.append(commandStack[-1].pop())
-        nextStep = Game(copy = gameStack[-1])
-        #print (moveStack[-1])
-        #print(gameStack[-1])
-        #input()
-        nextStep.command(moveStack[-1])
-        gameStack.append(nextStep)
-        commandStack.append(allPossibleMoves(gameStack[-1]))
-        repLevel = repCheck(gameStack)
-        #for i in range(repLevel):
-        if repLevel:
-            gameStack.pop()
-            commandStack.pop()
-            moveStack.pop()
-        clean()
-        
-        #sleep(0.1)
-    return moveStack
     
 if __name__ == "__main__":
-    gameFile = open('game.txt')
+    if len(sys.argv) < 2:
+        raise Exception ('Too few input arguments')
+    gameFileName = sys.argv[1]
+    
+    gameFile = open(gameFileName)
     newGame = Game(file = gameFile)
     cmd = ''
     while not newGame.isSolved() and cmd != 'exit':
         print(newGame, end = '')
         print ('>>', end = '')
         cmd = input()
-        if cmd not in ['exit', 'ai', 'fin']:
+        if cmd not in ['exit', 'ai', 'moves']:
             newGame.command(cmd)
         elif cmd == 'ai':
             print(ai(newGame))
-        elif cmd == 'fin':
-            with open('fin.txt') as f:
-                for i in f:
-                    newGame.command(i)
-                    print(newGame)
+        elif cmd == 'moves':
+            print(', '.join(allPossibleMoves(newGame)))
     if cmd != 'exit':
         print('You Win')
         print(newGame)
