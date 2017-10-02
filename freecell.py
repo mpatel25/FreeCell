@@ -154,16 +154,23 @@ class Game (object):
             print('Invalid Input')
             return False
         cmd = sCommand[0] + sCommand[2]
+        if len(sCommand) == 3 and cmd[1] != 'f':
+            print('Invalid Input')
+            return False
         if cmd not in self.commands:
             print('Invalid Input')
             return False
         if self.commands[cmd][0]:
             l1 = sCommand[1]
             l2 = sCommand[3]
-            self.commands[cmd][1](self, int(l1), int(l2), True)
+            if not self.commands[cmd][1](self, int(l1), int(l2), True):
+                print('Invalid Input')
+                return False
         else:
             l1 = sCommand[1]
-            self.commands[cmd][1](self, int(l1), True)
+            if not self.commands[cmd][1](self, int(l1), True):
+                print('Invalid Input')
+                return False
         return True
             
     def emptyCell(self):
@@ -224,10 +231,8 @@ if __name__ == "__main__":
         print(newGame, end = '')
         print ('>>', end = '')
         cmd = input()
-        if cmd not in ['exit', 'ai', 'moves']:
+        if cmd not in ['exit', 'moves']:
             newGame.command(cmd)
-        elif cmd == 'ai':
-            print(ai(newGame))
         elif cmd == 'moves':
             print(', '.join(allPossibleMoves(newGame)))
     if cmd != 'exit':
