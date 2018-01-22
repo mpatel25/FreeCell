@@ -16,7 +16,7 @@ Implementation:
     For example on a linux os the game can be run like this:
         python3 freecell.py ex_game.txt
     The game represents a card with two characters.
-    The first characer is the suit and the character is the card face value.
+    The first characer is the suit and the other character is the card face value.
     The suits are represented by d, s, h, c.
     d is for diamond, s is for spade, h is for heart, and c is for club.
     The Face values are represented by a number (2-9) or a, t, j, q, k.
